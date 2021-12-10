@@ -1,6 +1,5 @@
 const _ = require('lodash');
-const suppliers = require('../models/suppliersModel');
-const { body, validationResult } = require('express-validator');
+const suppliers = require('../models/supplierModel');
 
 const suppliersController = {
     getSuppliers : async (req, res) => {
