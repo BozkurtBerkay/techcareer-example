@@ -14,10 +14,11 @@ app.use((req, res, next) => {
 })
 
 app.use('/user', require('./routes/userRoutes'))
-app.use('/api', require('./routes/orderRoutes'))
-app.use('/api', require('./routes/supplierRoutes'))
+app.use('/api/products', require('./routes/productRoutes'))
+app.use('/api/orders', require('./routes/orderRoutes'))
+app.use('/api/suppliers', require('./routes/supplierRoutes'))
 
 
 app.listen(PORT, () => {
-    console.log("Sunucu çalışıyor");
+    console.log("Sunucu çalışıyor", PORT);
 })

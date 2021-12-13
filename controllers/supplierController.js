@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const suppliers = require('../models/supplierModel');
+const suppliers = require('../data/supplierData');
 
 const suppliersController = {
     getSuppliers : async (req, res) => {

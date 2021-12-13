@@ -1,10 +1,10 @@
 const router = require('express').Router();
 const ordersController = require('../controllers/ordersController');
 
-router.route('/orders')
+router.route('/')
     .get(ordersController.getOrders)
 
-router.route('/orders/:id')
+router.route('/:id')
     .get(ordersController.getOrder)
 
 module.exports = router;

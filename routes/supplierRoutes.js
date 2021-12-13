@@ -2,11 +2,11 @@ const router = require('express').Router();
 const supplierController = require('../controllers/supplierController');
 const supplierMiddle = require('../middleware/supplierMiddle');
 
-router.route('/suppliers')
+router.route('/')
     .get(supplierController.getSuppliers)
     .post(supplierMiddle, supplierController.createSupplier)
 
-router.route('/suppliers/:id')
+router.route('/:id')
     .get(supplierController.getSupplier)
     .delete(supplierController.deleteSupplier)
     .put(supplierMiddle, supplierController.updateSupplier)
