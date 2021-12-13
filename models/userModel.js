@@ -22,7 +22,18 @@ const userSchema = new mongoose.Schema({
     cart: {
         type: Array,
         default: []
-    }
+    },
+    failLoginCount: { 
+        type: Number, 
+        default: 0
+    },
+    addDate: { 
+        type: Date, 
+        default: Date.now 
+    },
+    isActive: { 
+        type: Boolean, 
+        default: true },
 }, {
     timestamps: true
 })

@@ -8,6 +8,10 @@ const productSchema = new mongoose.Schema({
     quantityPerUnit: String,
     unitPrice: Number,
     unitsInStock: Number,
+    discontinued: {
+        type: Boolean,
+        default: false,
+    },
     userId: String,
     categoryId: String,
 })

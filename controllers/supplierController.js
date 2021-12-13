@@ -18,7 +18,7 @@ const suppliersController = {
             !_.isEmpty(filteredData) ? res.status(200).json(filteredData) : res.status(404).json({ message: 'Suppliers not found' });
     
         } catch (error) {
-            return res.status(500).json({ msg: error.message })
+            return res.status(500).json({ message: error.message })
         }
     },
     createSupplier : async (req, res) => {
@@ -48,7 +48,7 @@ const suppliersController = {
             data ? res.status(200).send(data) : res.status(404).send({ message: 'Suppliers not found' });
     
         } catch (error) {
-            return res.status(500).json({ msg: error.message })
+            return res.status(500).json({ message: error.message })
         }
     },
     deleteSupplier : async (req, res) => {
@@ -62,7 +62,7 @@ const suppliersController = {
             } else res.status(404).send({ message: 'Suppliers not found' });
     
         } catch (error) {
-            return res.status(500).json({ msg: error.message })
+            return res.status(500).json({ message: error.message })
         }
     },
     updateSupplier : async (req, res) => {

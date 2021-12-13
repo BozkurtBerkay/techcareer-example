@@ -15,7 +15,7 @@ const productController = {
             productModel.find(query, fields, (err, docs) => {
                 if (!err) return res.status(200).json(docs);
 
-                res.status(500).json({ msg: err.message });
+                res.status(500).json({ message: err.message });
             })
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -25,7 +25,7 @@ const productController = {
         try {
             productModel.find({ _id: req.params.id }, (err, docs) => {
                 if (!err) return res.status(200).json(docs);
-                res.status(500).json({ msg: err.message });
+                res.status(500).json({ message: err.message });
             })
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -40,8 +40,8 @@ const productController = {
             })
 
             await newProduct.save((err, doc) => {
-                if (!err) return res.status(201).json({ success: true, msg: 'Product registered successfully', data: doc })
-                res.status(500).json({ msg: err })
+                if (!err) return res.status(201).json({ success: true, message: 'Product registered successfully', data: doc })
+                res.status(500).json({ message: err })
             })
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -50,11 +50,11 @@ const productController = {
     deleteProduct: async (req, res) => {
         try {
             const product = await productModel.findOne({ _id: req.params.id })
-            if (!product) return res.status(404).json({ msg: "Product not found" })
+            if (!product) return res.status(404).json({ message: "Product not found" })
 
             product.remove((err, doc) => {
-                if (err) return res.status(500).json({ msg: err.message })
-                res.status(200).json({ msg: 'Product deleted successfully', data: doc })
+                if (err) return res.status(500).json({ message: err.message })
+                res.status(200).json({ message: 'Product deleted successfully', data: doc })
             })
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -65,7 +65,7 @@ const productController = {
             console.log("buradayım");
             const { name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId } = req.body;
             const product = await productModel.findOne({ _id: req.params.id })
-            if (!product) return res.status(404).json({ msg: "Product not found" })
+            if (!product) return res.status(404).json({ message: "Product not found" })
             
             product.name = name;
             product.quantityPerUnit = quantityPerUnit;
@@ -75,8 +75,8 @@ const productController = {
             product.categoryId = categoryId;
 
             await product.save((err, doc) => {
-                if (!err) return res.status(201).json({ success: true, msg: 'Product updated successfully', data: doc })
-                res.status(500).json({ msg: err })
+                if (!err) return res.status(201).json({ success: true, message: 'Product updated successfully', data: doc })
+                res.status(500).json({ message: err })
             })
         } catch (error) {
             res.status(500).json({ error: error.message });

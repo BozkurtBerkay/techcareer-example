@@ -11,7 +11,7 @@ const suppliersMiddle = [
     body('phone').notEmpty().withMessage('Supplier phone is required').isNumeric().withMessage('Supplier phone is not number'),
     function (req, res, next) {
         var err = validationResult(req);
-        if (!err.isEmpty()) return res.status(400).json({ error: err.errors.map(i => i.msg) });
+        if (!err.isEmpty()) return res.status(400).json({ error: err.errors.map(i => i.message) });
         next();
     }
 ]
