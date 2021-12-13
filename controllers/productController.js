@@ -1,6 +1,5 @@
 const { productModel } = require('../models/productModel');
 const _ = require('lodash');
-const mongoose = require('mongoose');
 
 const productController = {
     getProducts: async (req, res) => {
@@ -62,7 +61,6 @@ const productController = {
     },
     updateProduct: async (req, res) => {
         try {
-            console.log("buradayım");
             const { name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId } = req.body;
             const product = await productModel.findOne({ _id: req.params.id })
             if (!product) return res.status(404).json({ message: "Product not found" })
@@ -73,8 +71,9 @@ const productController = {
             product.unitsInStock = unitsInStock;
             product.userId = userId;
             product.categoryId = categoryId;
+            product.updateDate = Date.now();
 
-            await product.save((err, doc) => {
+            product.save((err, doc) => {
                 if (!err) return res.status(201).json({ success: true, message: 'Product updated successfully', data: doc })
                 res.status(500).json({ message: err })
             })
