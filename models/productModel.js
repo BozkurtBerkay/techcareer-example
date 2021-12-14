@@ -5,9 +5,18 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    quantityPerUnit: String,
-    unitPrice: Number,
-    unitsInStock: Number,
+    unitPrice: {
+        type: Number,
+        required: true
+    },
+    quantityPerUnit: {
+        type: String,
+        required: true
+    },
+    unitsInStock: {
+        type: Number,
+        default: 0
+    },
     discontinued: {
         type: Boolean,
         default: false,

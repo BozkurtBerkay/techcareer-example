@@ -8,7 +8,7 @@ router.route('/')
 
 router.route('/:id')
     .get(userController.getUser)
-    .put(userController.updateUser)
+    .put(userMiddle, userController.updateUser)
     .delete(userController.deleteUser)
 
 router.route('/login')

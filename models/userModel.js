@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
+    product: {
+        type: Array,
+        default: []
+    },
     failLoginCount: { 
         type: Number, 
         default: 0
@@ -38,4 +42,8 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 })
 
-module.exports = mongoose.model('Users', userSchema)
+const userModel = mongoose.model('Users', userSchema)
+
+module.exports = {
+    userModel
+}

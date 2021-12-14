@@ -5,7 +5,7 @@ const userMiddle = [
     body('password').notEmpty().withMessage('User email is required'),
     function (req, res, next) {
         var err = validationResult(req);
-        if (!err.isEmpty()) return res.status(400).json({ error: err.errors.map(i => i.message) });
+        if (!err.isEmpty()) return res.status(400).json({ error: err.errors.map(i => i.msg) });
         next();
     }
 ]

@@ -12,7 +12,16 @@ const productController = {
             !_.isUndefined(req.query.name) ? query.name = req.query.name : '';
 
             productModel.find(query, fields, (err, docs) => {
-                if (!err) return res.status(200).json(docs);
+                const products = docs.map(product => {
+                    return {
+                        id: product._id,
+                        name: product.name,
+                        unitPrice: product.unitPrice,
+                        unitsInStock: product.unitsInStock,
+                        quantityPerUnit: product.quantityPerUnit,
+                    }
+                })
+                if (!err) return res.status(200).json(products);
 
                 res.status(500).json({ message: err.message });
             })
@@ -23,7 +32,16 @@ const productController = {
     getProduct: async (req, res) => {
         try {
             productModel.find({ _id: req.params.id }, (err, docs) => {
-                if (!err) return res.status(200).json(docs);
+                const product = docs.map(product => {
+                    return {
+                        id: product._id,
+                        name: product.name,
+                        unitPrice: product.unitPrice,
+                        unitsInStock: product.unitsInStock,
+                        quantityPerUnit: product.quantityPerUnit,
+                    }
+                })
+                if (!err) return res.status(200).json(product);
                 res.status(500).json({ message: err.message });
             })
         } catch (error) {
@@ -74,7 +92,7 @@ const productController = {
             product.updateDate = Date.now();
 
             product.save((err, doc) => {
-                if (!err) return res.status(201).json({ success: true, message: 'Product updated successfully', data: doc })
+                if (!err) return res.status(201).json({ success: true, message: 'Product updated successfully' })
                 res.status(500).json({ message: err })
             })
         } catch (error) {

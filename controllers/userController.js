@@ -1,6 +1,8 @@
+require('dotenv').config();
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
-const userModel = require('../models/userModel');
+const { userModel } = require('../models/userModel');
+const { productModel } = require('../models/productModel');
 const { userLogModel } = require('../models/userLog');
 
 const userController = {
@@ -14,16 +16,37 @@ const userController = {
         !_.isUndefined(req.query.email) ? query.email = req.query.email : '';
 
         userModel.find(query, fields, (err, docs) => {
-            if (!err) return res.status(200).json(docs);
+            const users = docs.map(user => {
+                return {
+                    name: user.name,
+                    email: user.email,
+                    isActive: user.isActive
+                }
+            })
+            if (!err) return res.status(200).json(users);
 
             res.status(500).json({ message: err.message });
         })
     },
     getUser: async (req, res) => {
-        userModel.find({ _id: req.params.id }, (err, docs) => {
-            if (!err) return res.status(200).json(docs);
-            res.status(500).json({ message: err.message });
-        })
+        try {
+            const user = await userModel.find({ _id: req.params.id });
+            if (!user) return res.status(404).json({ message: 'User not found' });
+
+            await getUserProducts(req.params.id, user);
+            
+            const mapUser = user.map(user => {
+                return {
+                    name: user.name,
+                    email: user.email,
+                    isActive: user.isActive,
+                    products: user.product,
+                }
+            })
+            res.status(200).json(mapUser);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     },
     createUser: async (req, res) => {
         try {
@@ -31,7 +54,7 @@ const userController = {
             const user = await userModel.findOne({ email })
             if (user) return res.status(400).json({ message: "The email already exists." })
 
-            const passwordHash = await bcrypt.hash(password, 10)
+            const passwordHash = await bcrypt.hash(password, process.env.PASSWORD_KEY * 1)
             const newUser = new userModel({
                 name, email, password: passwordHash
             })
@@ -49,10 +72,11 @@ const userController = {
             const { name, password } = req.body;
             const user = await userModel.findOne({ _id: req.params.id })
             if (!user) return res.status(404).json({ message: "User not found" })
-            const passwordHash = await bcrypt.hash(password, 10)
+            const passwordHash = await bcrypt.hash(password, process.env.PASSWORD_KEY * 1)
             user.name = name;
             user.password = passwordHash;
-            await user.save((err, doc) => {
+            user.email = user.email;
+            user.save((err, doc) => {
                 if (!err) return res.status(201).json({ success: true, message: 'User updated successfully', data: doc })
                 res.status(500).json({ message: err })
             })
@@ -87,11 +111,11 @@ const userController = {
                     ipAddress: req.socket.remoteAddress
                 })
                 userLog.save((err, doc) => {
-                    if(err) return res.status(400).json({ message: err._message })
+                    if (err) return res.status(400).json({ message: err._message })
                     user.failLoginCount = user.failLoginCount + 1;
 
                     user.save((err, doc) => {
-                        if(err) return res.status(400).json({ message: err})
+                        if (err) return res.status(400).json({ message: err })
                     })
                 })
                 return res.status(400).json({ message: "Wrong Password!..." })
@@ -115,6 +139,28 @@ const userController = {
         } catch (error) {
             res.status(500).json({ error: error.message })
         }
+    }
+}
+
+const getUserProducts = async (id, user) => {
+    try {
+        const products = await productModel.find({ userId: id });
+        if (products) {
+            user[0].product = products.map(item => {
+                return {
+                    id: item.id,
+                    name: item.name,
+                    quantityPerUnit: item.quantityPerUnit,
+                    unitPrice: item.unitPrice,
+                    unitsInStock: item.unitsInStock,
+                    discontinued: item.discontinued
+                }
+            });
+
+            return user[0].product;
+        }
+    } catch (error) {
+        console.log(error);
     }
 }
 
