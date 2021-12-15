@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const productSchema = new mongoose.Schema({
+const productSchema = new Schema({
+    _id: Schema.Types.ObjectId,
     name: {
         type: String,
         required: true,
@@ -21,7 +23,10 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    userId: String,
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
     categoryId: String,
     addDate: {
         type: Date,
@@ -33,8 +38,8 @@ const productSchema = new mongoose.Schema({
     }
 })
 
-const productModel = mongoose.model('Products', productSchema);
+const Product = mongoose.model('Product', productSchema, 'product');
 
 module.exports = {
-    productModel
+    Product
 }

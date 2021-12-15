@@ -1,8 +1,9 @@
 require('dotenv').config();
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
-const { userModel } = require('../models/userModel');
-const { productModel } = require('../models/productModel');
+const mongoose = require('mongoose');
+const { User } = require('../models/userModel');
+const { Product } = require('../models/productModel');
 const { userLogModel } = require('../models/userLog');
 
 const userController = {
@@ -15,7 +16,7 @@ const userController = {
         !_.isUndefined(req.query.name) ? query.name = req.query.name : '';
         !_.isUndefined(req.query.email) ? query.email = req.query.email : '';
 
-        userModel.find(query, fields, (err, docs) => {
+        User.find(query, fields, (err, docs) => {
             const users = docs.map(user => {
                 return {
                     name: user.name,
@@ -30,17 +31,18 @@ const userController = {
     },
     getUser: async (req, res) => {
         try {
-            const user = await userModel.find({ _id: req.params.id });
+            const user = await User.find({ _id: req.params.id }).populate('products').exec();
+
             if (!user) return res.status(404).json({ message: 'User not found' });
 
-            await getUserProducts(req.params.id, user);
-            
+            //await getUserProducts(req.params.id, user);
+
             const mapUser = user.map(user => {
                 return {
                     name: user.name,
                     email: user.email,
                     isActive: user.isActive,
-                    products: user.product,
+                    products: user.products,
                 }
             })
             res.status(200).json(mapUser);
@@ -51,12 +53,12 @@ const userController = {
     createUser: async (req, res) => {
         try {
             const { name, email, password } = req.body;
-            const user = await userModel.findOne({ email })
+            const user = await User.findOne({ email })
             if (user) return res.status(400).json({ message: "The email already exists." })
 
             const passwordHash = await bcrypt.hash(password, process.env.PASSWORD_KEY * 1)
-            const newUser = new userModel({
-                name, email, password: passwordHash
+            const newUser = new User({
+                _id: new mongoose.Types.ObjectId(), name, email, password: passwordHash
             })
 
             await newUser.save((err, doc) => {
@@ -70,7 +72,7 @@ const userController = {
     updateUser: async (req, res) => {
         try {
             const { name, password } = req.body;
-            const user = await userModel.findOne({ _id: req.params.id })
+            const user = await User.findOne({ _id: req.params.id })
             if (!user) return res.status(404).json({ message: "User not found" })
             const passwordHash = await bcrypt.hash(password, process.env.PASSWORD_KEY * 1)
             user.name = name;
@@ -86,7 +88,7 @@ const userController = {
     },
     deleteUser: async (req, res) => {
         try {
-            const user = await userModel.findOne({ _id: req.params.id })
+            const user = await User.findOne({ _id: req.params.id })
             if (!user) return res.status(404).json({ message: "User not found" })
 
             user.remove((err, doc) => {
@@ -100,7 +102,7 @@ const userController = {
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
-            const user = await userModel.findOne({ email })
+            const user = await User.findOne({ email })
             if (!user) return res.status(404).json({ message: "User not found" })
 
             const isMatch = await bcrypt.compare(password, user.password)
@@ -144,7 +146,7 @@ const userController = {
 
 const getUserProducts = async (id, user) => {
     try {
-        const products = await productModel.find({ userId: id });
+        const products = await Product.find({ userId: id });
         if (products) {
             user[0].product = products.map(item => {
                 return {

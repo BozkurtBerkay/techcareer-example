@@ -1,5 +1,7 @@
-const { productModel } = require('../models/productModel');
+const { Product } = require('../models/productModel');
+const { User } = require('../models/userModel');
 const _ = require('lodash');
+const mongoose = require('mongoose');
 
 const productController = {
     getProducts: async (req, res) => {
@@ -11,7 +13,7 @@ const productController = {
 
             !_.isUndefined(req.query.name) ? query.name = req.query.name : '';
 
-            productModel.find(query, fields, (err, docs) => {
+            Product.find(query, fields, (err, docs) => {
                 const products = docs.map(product => {
                     return {
                         id: product._id,
@@ -31,7 +33,7 @@ const productController = {
     },
     getProduct: async (req, res) => {
         try {
-            productModel.find({ _id: req.params.id }, (err, docs) => {
+            Product.find({ _id: req.params.id }, (err, docs) => {
                 const product = docs.map(product => {
                     return {
                         id: product._id,
@@ -52,13 +54,17 @@ const productController = {
         try {
             const { name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId } = req.body;
 
-            const newProduct = new productModel({
-                name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId
+            const newProduct = new Product({
+                _id: new mongoose.Types.ObjectId(), name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId
             })
 
-            await newProduct.save((err, doc) => {
-                if (!err) return res.status(201).json({ success: true, message: 'Product registered successfully', data: doc })
-                res.status(500).json({ message: err })
+            await newProduct.save(async (err, doc) => {
+                const user = await User.findOne({_id: doc.userId});
+                user.products.push(doc._id);
+                console.log(user);
+                user.save();
+                if (err) return res.status(500).json({ message: err })
+                res.status(201).json({ success: true, message: 'Product registered successfully', data: doc })
             })
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -66,12 +72,12 @@ const productController = {
     },
     deleteProduct: async (req, res) => {
         try {
-            const product = await productModel.findOne({ _id: req.params.id })
+            const product = await Product.findOne({ _id: req.params.id })
             if (!product) return res.status(404).json({ message: "Product not found" })
 
             product.remove((err, doc) => {
                 if (err) return res.status(500).json({ message: err.message })
-                res.status(200).json({ message: 'Product deleted successfully', data: doc })
+                res.status(200).json({ success: true, message: 'Product deleted successfully', data: doc })
             })
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -80,9 +86,9 @@ const productController = {
     updateProduct: async (req, res) => {
         try {
             const { name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId } = req.body;
-            const product = await productModel.findOne({ _id: req.params.id })
+            const product = await Product.findOne({ _id: req.params.id })
             if (!product) return res.status(404).json({ message: "Product not found" })
-            
+
             product.name = name;
             product.quantityPerUnit = quantityPerUnit;
             product.unitPrice = unitPrice;

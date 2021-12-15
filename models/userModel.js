@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
+const Schema = mongoose.Schema;
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
+    _id: Schema.Types.ObjectId,
     name: {
         type: String,
         required: true,
@@ -23,27 +25,31 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
-    product: {
-        type: Array,
-        default: []
-    },
-    failLoginCount: { 
-        type: Number, 
+    products:
+    [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Product'
+        }
+    ],
+    failLoginCount: {
+        type: Number,
         default: 0
     },
-    addDate: { 
-        type: Date, 
-        default: Date.now 
+    addDate: {
+        type: Date,
+        default: Date.now
     },
-    isActive: { 
-        type: Boolean, 
-        default: true },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
 }, {
     timestamps: true
 })
 
-const userModel = mongoose.model('Users', userSchema)
+const User = mongoose.model('User', userSchema, 'user')
 
 module.exports = {
-    userModel
+    User
 }
