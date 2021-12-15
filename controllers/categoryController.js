@@ -10,8 +10,6 @@ const categoryController = {
 
             !_.isUndefined(fields) ? fields = fields.split(",").join(" ") : '';
 
-            !_.isUndefined(req.query.name) ? query.name = req.query.name : '';
-
             Category.find(query, fields, (err, docs) => {
                 if (!err) return res.status(200).json(docs);
 

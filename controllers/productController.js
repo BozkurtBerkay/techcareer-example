@@ -11,9 +11,7 @@ const productController = {
 
             !_.isUndefined(fields) ? fields = fields.split(",").join(" ") : '';
 
-            !_.isUndefined(req.query.name) ? query.name = req.query.name : '';
-
-            Product.find(query, fields, (err, docs) => {
+            Product.find(query, fields).populate('categoryId').exec((err, docs) => {
                 const products = docs.map(product => {
                     return {
                         id: product._id,
@@ -21,6 +19,7 @@ const productController = {
                         unitPrice: product.unitPrice,
                         unitsInStock: product.unitsInStock,
                         quantityPerUnit: product.quantityPerUnit,
+                        category: product.categoryId.name
                     }
                 })
                 if (!err) return res.status(200).json(products);
@@ -33,7 +32,7 @@ const productController = {
     },
     getProduct: async (req, res) => {
         try {
-            Product.find({ _id: req.params.id }, (err, docs) => {
+            Product.find({ _id: req.params.id }).populate('categoryId').exec((err, docs) => {
                 const product = docs.map(product => {
                     return {
                         id: product._id,
@@ -41,6 +40,7 @@ const productController = {
                         unitPrice: product.unitPrice,
                         unitsInStock: product.unitsInStock,
                         quantityPerUnit: product.quantityPerUnit,
+                        category: product.categoryId.name
                     }
                 })
                 if (!err) return res.status(200).json(product);

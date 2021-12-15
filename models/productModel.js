@@ -27,7 +27,10 @@ const productSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    categoryId: String,
+    categoryId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Category'
+    },
     addDate: {
         type: Date,
         default: Date.now

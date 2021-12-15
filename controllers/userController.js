@@ -13,9 +13,6 @@ const userController = {
 
         !_.isUndefined(fields) ? fields = fields.split(",").join(" ") : '';
 
-        !_.isUndefined(req.query.name) ? query.name = req.query.name : '';
-        !_.isUndefined(req.query.email) ? query.email = req.query.email : '';
-
         User.find(query, fields, (err, docs) => {
             const users = docs.map(user => {
                 return {
