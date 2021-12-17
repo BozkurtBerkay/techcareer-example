@@ -28,7 +28,7 @@ const userController = {
     },
     getUser: async (req, res) => {
         try {
-            const user = await User.find({ _id: req.params.id }).populate('products').exec();
+            const user = await User.find({ _id: req.params.id });
 
             if (!user) return res.status(404).json({ message: 'User not found' });
 
@@ -38,8 +38,8 @@ const userController = {
                 return {
                     name: user.name,
                     email: user.email,
-                    isActive: user.isActive,
-                    products: user.products,
+                    isActive: user.isActive
+                    //products: user.products,
                 }
             })
             res.status(200).json(mapUser);
@@ -138,14 +138,22 @@ const userController = {
         } catch (error) {
             res.status(500).json({ error: error.message })
         }
+    },
+    getAllProducts: async (req, res) => {
+        try {
+            const user = await User.find({ user: req.params.id }).populate("products");
+            res.status(200).json(user)
+        } catch (error) {
+            res.status(500).json({ error: error.message})
+        }
     }
 }
 
 const getUserProducts = async (id, user) => {
     try {
-        const products = await Product.find({ userId: id });
+        const products = await Product.findOne({ userId: id });
         if (products) {
-            user[0].product = products.map(item => {
+            user.products = products.map(item => {
                 return {
                     id: item.id,
                     name: item.name,
@@ -156,7 +164,7 @@ const getUserProducts = async (id, user) => {
                 }
             });
 
-            return user[0].product;
+            return user.products;
         }
     } catch (error) {
         console.log(error);

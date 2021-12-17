@@ -11,6 +11,9 @@ router.route('/:id')
     .put(userMiddleware, userController.updateUser)
     .delete(userController.deleteUser)
 
+router.route('/:id/products')
+    .get(userController.getAllProducts)
+
 router.route('/login')
     .post(userController.login)
 

@@ -1,7 +1,8 @@
-const { Product } = require('../models/productModel');
-const { User } = require('../models/userModel');
 const _ = require('lodash');
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const { Product } = require('../models/productModel');
+const { User } = require('../models/userModel');
 
 const productController = {
     getProducts: async (req, res) => {
@@ -11,7 +12,7 @@ const productController = {
 
             !_.isUndefined(fields) ? fields = fields.split(",").join(" ") : '';
 
-            Product.find(query, fields).populate('categoryId').exec((err, docs) => {
+            Product.find(query, fields).populate('category').exec((err, docs) => {
                 const products = docs.map(product => {
                     return {
                         id: product._id,
@@ -19,7 +20,7 @@ const productController = {
                         unitPrice: product.unitPrice,
                         unitsInStock: product.unitsInStock,
                         quantityPerUnit: product.quantityPerUnit,
-                        category: product.categoryId.name
+                        category: product.category?.name
                     }
                 })
                 if (!err) return res.status(200).json(products);
@@ -32,7 +33,7 @@ const productController = {
     },
     getProduct: async (req, res) => {
         try {
-            Product.find({ _id: req.params.id }).populate('categoryId').exec((err, docs) => {
+            Product.find({ _id: req.params.id }).populate('category').exec((err, docs) => {
                 const product = docs.map(product => {
                     return {
                         id: product._id,
@@ -40,7 +41,7 @@ const productController = {
                         unitPrice: product.unitPrice,
                         unitsInStock: product.unitsInStock,
                         quantityPerUnit: product.quantityPerUnit,
-                        category: product.categoryId.name
+                        category: product.category?.name
                     }
                 })
                 if (!err) return res.status(200).json(product);
@@ -55,16 +56,21 @@ const productController = {
             const { name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId } = req.body;
 
             const newProduct = new Product({
-                _id: new mongoose.Types.ObjectId(), name, quantityPerUnit, unitPrice, unitsInStock, userId, categoryId
+                _id: new mongoose.Types.ObjectId(), name, quantityPerUnit, unitPrice, unitsInStock, user: userId, category: categoryId
             })
 
-            await newProduct.save(async (err, doc) => {
-                const user = await User.findOne({_id: doc.userId});
-                user.products.push(doc._id);
-                console.log(user);
-                user.save();
+            User.findOne({ _id: userId }, (err, user) => {
+                if (err) return res.status(500).json({ message: err.message });
+                user.products.push(newProduct._id);
+                user.save((err, docs) => {
+                    if (err) return res.status(500).json({ message: err.message })
+                });
+            });
+
+            newProduct.save(async (err, product) => {
                 if (err) return res.status(500).json({ message: err })
-                res.status(201).json({ success: true, message: 'Product registered successfully', data: doc })
+
+                res.status(201).json({ success: true, message: 'Product registered successfully', data: product })
             })
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -74,6 +80,15 @@ const productController = {
         try {
             const product = await Product.findOne({ _id: req.params.id })
             if (!product) return res.status(404).json({ message: "Product not found" })
+
+            User.findOne({ _id: product.user }, async (err, user) => {
+                if (err) return res.status(500).send({ message: err })
+                const deleteProduct = user.products?.find(item => item.toString() === product._id.toString())
+                user.products?.pop(deleteProduct);
+                user.save((err, doc) => {
+                    if (err) return res.status(500).json({ message: err })
+                })
+            })
 
             product.remove((err, doc) => {
                 if (err) return res.status(500).json({ message: err.message })
@@ -93,8 +108,8 @@ const productController = {
             product.quantityPerUnit = quantityPerUnit;
             product.unitPrice = unitPrice;
             product.unitsInStock = unitsInStock;
-            product.userId = userId;
-            product.categoryId = categoryId;
+            product.user = userId;
+            product.category = categoryId;
             product.updateDate = Date.now();
 
             product.save((err, doc) => {

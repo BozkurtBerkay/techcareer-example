@@ -23,11 +23,11 @@ const productSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    userId: {
+    user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    categoryId: {
+    category: {
         type: Schema.Types.ObjectId,
         ref: 'Category'
     },

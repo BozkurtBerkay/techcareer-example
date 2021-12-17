@@ -1,6 +1,7 @@
 const productController = require('../controllers/productController');
 const router = require('express').Router();
 const productMiddleware = require('../middleware/product');
+const schemaMiddleware = require('../middleware/schema');
 
 router.route('/')
     .get(productController.getProducts)
