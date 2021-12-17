@@ -1,12 +1,16 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+
 const connectionHelper = require('./dbConnect/connectionHelper');
+const notFoundMiddleware = require('./middleware/notFound');
+const errorHandlerMiddleware = require('./middleware/errorHandler');
 
 const PORT = 5000;
 
 connectionHelper.connect();
 
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use((req, res, next) => {
     res.set('Access-Control-Allow-Origin', '*');
@@ -19,6 +23,8 @@ app.use('/api/category', require('./routes/categoryRoutes'))
 app.use('/api/orders', require('./routes/orderRoutes'))
 app.use('/api/suppliers', require('./routes/supplierRoutes'))
 
+app.use(notFoundMiddleware)
+app.use(errorHandlerMiddleware)
 
 app.listen(PORT, () => {
     console.log("Sunucu çalışıyor", PORT);

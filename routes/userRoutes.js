@@ -1,14 +1,14 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
-const userMiddle = require('../middleware/userMiddle');
+const userMiddleware = require('../middleware/user');
 
 router.route('/')
     .get(userController.getUsers)
-    .post(userMiddle, userController.createUser)
+    .post(userMiddleware, userController.createUser)
 
 router.route('/:id')
     .get(userController.getUser)
-    .put(userMiddle, userController.updateUser)
+    .put(userMiddleware, userController.updateUser)
     .delete(userController.deleteUser)
 
 router.route('/login')

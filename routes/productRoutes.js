@@ -1,14 +1,14 @@
 const productController = require('../controllers/productController');
 const router = require('express').Router();
-const productMiddle = require('../middleware/productMiddle');
+const productMiddleware = require('../middleware/product');
 
 router.route('/')
     .get(productController.getProducts)
-    .post(productMiddle, productController.createProduct)
+    .post(productMiddleware, productController.createProduct)
 
 router.route('/:id')
     .get(productController.getProduct)
     .delete(productController.deleteProduct)
-    .put(productMiddle, productController.updateProduct)
+    .put(productMiddleware, productController.updateProduct)
 
 module.exports = router

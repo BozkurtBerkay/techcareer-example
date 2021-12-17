@@ -1,5 +1,5 @@
 const { body, validationResult } = require('express-validator');
-const suppliersMiddle = [
+const suppliersMiddleware = [
     body('companyName').notEmpty().withMessage('Supplier companyName is required').isString().withMessage('Supplier companyName is not string'),
     body('contactName').notEmpty().withMessage('Supplier contactName is required').isString().withMessage('Supplier contactName is not string'),
     body('contactTitle').notEmpty().withMessage('Supplier contactTitle is required').isString().withMessage('Supplier contactTitle is not string'),
@@ -16,4 +16,4 @@ const suppliersMiddle = [
     }
 ]
 
-module.exports = suppliersMiddle
+module.exports = suppliersMiddleware
