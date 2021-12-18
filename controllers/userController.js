@@ -3,6 +3,7 @@ const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+
 const { User } = require('../models/userModel');
 const { Product } = require('../models/productModel');
 const { userLogModel } = require('../models/userLog');
@@ -156,6 +157,21 @@ const userController = {
         } catch (error) {
             res.status(500).json({ error: error.message })
         }
+    },
+    authGoogle: async (req, res) => {
+        try {
+            const accesstoken = createAccessToken({ id: req.user._id })
+            const refreshtoken = createRefreshToken({ id: req.user._id })
+
+            res.cookie('refreshtoken', refreshtoken, {
+                httpOnly: true,
+                path: '/user/refresh_token'
+            })
+            res.status(200).json({ success: true, message: 'User logged in successfully', token: accesstoken })
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+
     },
     getAllProducts: async (req, res) => {
         try {
