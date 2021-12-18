@@ -2,6 +2,7 @@ require('dotenv').config();
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const { User } = require('../models/userModel');
 const { Product } = require('../models/productModel');
 const { userLogModel } = require('../models/userLog');
@@ -58,8 +59,16 @@ const userController = {
                 _id: new mongoose.Types.ObjectId(), name, email, password: passwordHash
             })
 
+            const accesstoken = createAccessToken({ id: newUser._id })
+            const refreshtoken = createRefreshToken({ id: newUser._id })
+
+            res.cookie('refreshtoken', refreshtoken, {
+                httpOnly: true,
+                path: '/user/refresh_token'
+            })
+
             await newUser.save((err, doc) => {
-                if (!err) return res.status(201).json({ success: true, message: 'Registration Successful', data: doc })
+                if (!err) return res.status(201).json({ success: true, message: 'Registration Successful', token: accesstoken })
                 res.status(500).json({ message: err })
             })
         } catch (err) {
@@ -126,13 +135,22 @@ const userController = {
                 ipAddress: req.socket.remoteAddress
             })
 
+            const accesstoken = createAccessToken({ id: user._id })
+            const refreshtoken = createRefreshToken({ id: user._id })
+
+            res.cookie('refreshtoken', refreshtoken, {
+                httpOnly: true,
+                path: '/user/refresh_token',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
+            })
+
             userLog.save((err, doc) => {
                 if (err) return res.status(err).json({ message: err._message })
                 user.failLoginCount = 0;
                 user.save((err, doc) => {
                     if (err) return res.status(err).json({ message: err._message })
                 })
-                res.status(200).json({ message: "Login successful" })
+                res.status(200).json({ success: true, message: "Login successful", token: accesstoken })
             })
 
         } catch (error) {
@@ -144,9 +162,16 @@ const userController = {
             const user = await User.find({ user: req.params.id }).populate("products");
             res.status(200).json(user)
         } catch (error) {
-            res.status(500).json({ error: error.message})
+            res.status(500).json({ error: error.message })
         }
     }
+}
+
+const createAccessToken = (user) => {
+    return jwt.sign(user, process.env.ACCESS_TOKEN_KEY, { expiresIn: '1d' })
+}
+const createRefreshToken = (user) => {
+    return jwt.sign(user, process.env.REFRESH_TOKEN_KEY, { expiresIn: '7d' })
 }
 
 const getUserProducts = async (id, user) => {

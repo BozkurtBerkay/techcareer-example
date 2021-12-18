@@ -1,15 +1,16 @@
 const router = require('express').Router();
 const userController = require('../controllers/userController');
 const userMiddleware = require('../middleware/user');
+const Auth = require('../middleware/auth');
 
 router.route('/')
     .get(userController.getUsers)
-    .post(userMiddleware, userController.createUser)
+    .post(Auth, userMiddleware, userController.createUser)
 
 router.route('/:id')
     .get(userController.getUser)
-    .put(userMiddleware, userController.updateUser)
-    .delete(userController.deleteUser)
+    .put(Auth, userMiddleware, userController.updateUser)
+    .delete(Auth, userController.deleteUser)
 
 router.route('/:id/products')
     .get(userController.getAllProducts)
