@@ -1,8 +1,6 @@
 const express = require('express');
 const app = express();
-const passport = require('passport');
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
 
 const connectionHelper = require('./dbConnect/connectionHelper');
 const notFoundMiddleware = require('./middleware/notFound');
@@ -14,6 +12,10 @@ connectionHelper.connect();
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(express.static('public'))
+app.set('view engine', 'pug')
+
+
 app.use((req, res, next) => {
     res.set('Access-Control-Allow-Origin', '*');
     next();
@@ -24,6 +26,7 @@ app.use('/api/products', require('./routes/productRoutes'))
 app.use('/api/category', require('./routes/categoryRoutes'))
 app.use('/api/orders', require('./routes/orderRoutes'))
 app.use('/api/suppliers', require('./routes/supplierRoutes'))
+app.use('/api/northwind', require('./routes/northwindRoutes'))
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

@@ -1,0 +1,12 @@
+html
+  head
+    title= title
+  body
+        form(action=`/api/northwind/products/update-products/${data.id}` method="post")
+            input(type="number", name="id", value=data.id, placeholder="İd" disabled)
+            br
+            input(type="text", name="name", value=data.name, placeholder="Ad" required)
+            br
+            input(type="number", name="unitPrice", value=data.unitPrice, placeholder="fiyat")
+            br
+            input(type="submit" value="Update")

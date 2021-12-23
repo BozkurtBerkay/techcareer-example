@@ -1,0 +1,12 @@
+html
+  head
+    title= title
+  body
+        form(action="/api/northwind/add-products" method="post")
+            input(type="number", name="id", value="", placeholder="İd" required)
+            br
+            input(type="text", name="name", value="", placeholder="Ad" required)
+            br
+            input(type="number", name="unitPrice", value="", placeholder="fiyat")
+            br
+            input(type="submit" value="Add")

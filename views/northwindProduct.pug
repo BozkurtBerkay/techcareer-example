@@ -1,0 +1,14 @@
+html
+  head
+    style
+      include style.css
+body
+each item in data
+    if item.unitPrice > 20
+        p.red= item.name
+        a(href=`/api/northwind/products/delete/${item.id}`) Remove
+        a(href=`/api/northwind/products/update-products/${item.id}`) Update
+    else
+        p= item.name
+        a(href=`/api/northwind/products/delete/${item.id}`) Remove
+        a(href=`/api/northwind/products/update-products/${item.id}`) Update
